@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Korean Quiz Hero</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: inline-block; width: 350px; }
+        .category-btn { padding: 8px 15px; margin: 5px; cursor: pointer; border: 1px solid #007bff; border-radius: 20px; background: none; color: #007bff; }
+        .category-btn.active { background: #007bff; color: white; }
+        h1 { font-size: 50px; margin: 20px 0; color: #333; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .option { padding: 15px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .option:hover { background-color: #f8f9fa; }
+        #result { margin-top: 15px; font-weight: bold; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="categoryMenu">
+        <p>အုပ်စုရွေးပါ</p>
+        <button class="category-btn active" onclick="setCategory('Food')">အစားအစာ</button>
+        <button class="category-btn" onclick="setCategory('Place')">နေရာများ</button>
+    </div>
+
+    <h1 id="questionText">사과</h1>
+    <div id="result"></div>
+
+    <div class="options-grid" id="options">
+        <!-- အဖြေရွေးချယ်စရာ ၄ ခု ဒီမှာပေါ်မယ် -->
+    </div>
+
+    <button style="margin-top:20px; padding: 10px 20px;" onclick="generateQuiz()">နောက်တစ်ပုဒ်</button>
+</div>
+
+<script>
+    // ၁။ စကားလုံးတွေကို အုပ်စုလိုက် သိမ်းခြင်း (Java Map/Object ပုံစံ)
+    const data = {
+        "Food": [
+            { kr: "사과", mm: "ပန်းသီး" }, { kr: "밥", mm: "ထမင်း" },
+            { kr: "물", mm: "ရေ" }, { kr: "고기", mm: "အသား" }, { kr: "빵", mm: "ပေါင်မုန့်" }
+        ],
+        "Place": [
+            { kr: "학교", mm: "ကျောင်း" }, { kr: "집", mm: "အိမ်" },
+            { kr: "병원", mm: "ဆေးရုံ" }, { kr: "은행", mm: "ဘဏ်" }, { kr: "ဈေး", mm: "시장" }
+        ]
+    };
+
+    let currentCategory = "Food";
+    let correctAnswer = "";
+
+    function setCategory(cat) {
+        currentCategory = cat;
+        // Button အရောင်ပြောင်းဖို့
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        generateQuiz();
+    }
+
+    function generateQuiz() {
+        document.getElementById('result').innerText = "";
+        let currentWords = data[currentCategory];
+        
+        // ကျပန်း မေးခွန်းထုတ်ခြင်း
+        let randomIdx = Math.floor(Math.random() * currentWords.length);
+        let question = currentWords[randomIdx];
+        correctAnswer = question.mm;
+        document.getElementById('questionText').innerText = question.kr;
+
+        // အဖြေရွေးချယ်စရာ ၄ ခုလုပ်ခြင်း
+        let choices = [correctAnswer];
+        while(choices.length < 4) {
+            let randWord = currentWords[Math.floor(Math.random() * currentWords.length)].mm;
+            if(!choices.includes(randWord)) choices.push(randWord);
+        }
+        
+        // အဖြေတွေကို ရောနှောခြင်း (Shuffle)
+        choices.sort(() => Math.random() - 0.5);
+
+        // HTML မှာ ပြသခြင်း
+        let optionsHTML = "";
+        choices.forEach(choice => {
+            optionsHTML += `<div class="option" onclick="checkAnswer('${choice}')">${choice}</div>`;
+        });
+        document.getElementById('options').innerHTML = optionsHTML;
+    }
+
+    function checkAnswer(selected) {
+        let resDiv = document.getElementById('result');
+        if(selected === correctAnswer) {
+            resDiv.innerText = "မှန်ပါတယ်! 🎉";
+            resDiv.style.color = "green";
+        } else {
+            resDiv.innerText = "မှားသွားတယ်၊ ပြန်ကြိုးစားပါ! ❌";
+            resDiv.style.color = "red";
+        }
+    }
+
+    // အစပိုင်းမှာ တစ်ခါ Run ပေးထားမယ်
+    generateQuiz();
+</script>
+
+</body>
+</html>
